@@ -1,20 +1,54 @@
 #include "type.h"
+#include "cleaner.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+gc_element_list e_list; 
 void* getContent(enum TYPE t, element *e) {
     if (e->type == t) return e->content;
     else return NULL;
 }
+element *newElement(enum TYPE t, void *c) {
+    element *e = malloc(sizeof(element));
+    e->type = t;
+    e->content = c;
+    GCAdd(e,&e_list);
+    return e;
+}
+void destroyElement(element *e) {
+    if (e == NULL)
+        return;
+    if (e->type == SYMBOL)
+        destroySym(e);
+    else if (e->type == TABLE)
+        destroyTable(e);
+    free(e);
+}
+void destroySym(element *e) {
+    if (e == NULL)
+        return;
+    symbol *sym = (symbol *)getContent(SYMBOL, e);
+    if (sym == NULL)
+        return;
+    free(sym->seq);
+    free(sym);
+}
+void destroyTable(element *e) {
+    if (e == NULL)
+        return;
+    table *tb = (table *)getContent(TABLE, e);
+    if (tb == NULL)
+        return;
+    destroyElement(tb->first);
+    destroyElement(tb->rest);
+    free(tb);
+}
 
 element *cons(element *first, element *rest) {
-    element *res = (element *)malloc(sizeof(element));
-    res->type = TABLE;
     table* tb = (table *)malloc(sizeof(table));
-    res->content = tb;
     tb->first = first;
     tb->rest = rest;
-    return res;
+    return newElement(TABLE, tb);
 }
 element *car(element *e) {
     table *tb = (table *)getContent(TABLE,e);
@@ -62,10 +96,7 @@ element* newSymbol(char *seq, int len) {
     sym->index = 0;
     sym->length = len;
     sym->size = len+1;
-    element *res = (element *)malloc(sizeof(element));
-    res->type = SYMBOL;
-    res->content = (void *)sym;
-    return res;
+    return newElement(SYMBOL, sym);
 }
 char getChar(element *e) {
     symbol *sym = getContent(SYMBOL, e);

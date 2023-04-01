@@ -3,6 +3,9 @@
 #include "read.h"
 #include "type.h"
 #include "string.h"
+#include "cleaner.h"
+extern gc_element_list e_list;
+
 void testSymbol() {
     element* sym = input();
     char c;
@@ -52,4 +55,5 @@ void testCons() {
 int main() {
     //testSymbol();
     testCons();
+    cleanAll(&e_list);
 }

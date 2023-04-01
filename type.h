@@ -20,11 +20,13 @@ typedef struct SYMBOL {
 } symbol;
 
 void* getContent(enum TYPE t, element *e); 
+void destroyElement(element *e);
 
 element *cons(element *first, element *rest);
 element *car(element *tb);
 element *cdr(element *tb);
 void printTable(element *tb);
+void destroyTable(element *tb);
 
 element* newSymbol(char *seq,int len);
 char getChar(element *e); 
@@ -33,4 +35,5 @@ char getCharAt(int pos, element *e);
 char getReverseChar(element *e);
 int noChar(element *e);
 void reverseSym(element *e);
+void destroySym(element *e);
 #endif
