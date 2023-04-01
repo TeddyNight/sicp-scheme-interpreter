@@ -12,7 +12,7 @@ void parse(char *st, table *tb) {
 */
 
 element *input() {
-    element *sym = newSymbol(malloc(2),1);
+    element *sym = newSymbol(malloc(1),0);
     char c;
     while ((c = getchar()) != '\n') {
         putChar(sym,c);
@@ -20,27 +20,40 @@ element *input() {
     return sym;
 }
 
-element *parse(element *str) {
-    char c = getChar(str);
+element *parse(element *str, element *rest) {
+    // TODO: improve the way to parse the experssion
+    char c;
+    c = getReverseChar(str);
     if (c == '\0') {
-        return NULL;
+        return rest;
     }
 
-    if (c == '(') {
-        element *first = parse(str);
-        element *rest = parse(str);
-        return cons(first, rest);
+    // main-clause or sub-clause
+    if (c == ')') {
+        return parse(str, rest);
     }
 
-    if (c == '\0' || c == ')') {
-        return NULL;
+    element *res = newSymbol(malloc(1),0);
+    int noSym = 1;
+    while (c != '(' && c != ' ') {
+        noSym = 0;
+        putChar(res, c);
+        c = getReverseChar(str);
     }
 
-    element* e = newSymbol(malloc(2),1);
-    while (c != '\0' && c != ' ' && c != ')') {
-        putChar(e, c);
-        c = getChar(str);
+    if (c == ' ') {
+        return parse(str, cons(res, rest));
     }
 
-    return e;
-}    
+    if (c == '(' && !noChar(str)) {
+        return parse(str, cons(cons(res, rest), NULL));
+    }
+
+    // parse finsh
+    if (noSym)
+        return rest;
+    else {
+        reverseSym(res);
+        return cons(res, rest);
+    }
+}

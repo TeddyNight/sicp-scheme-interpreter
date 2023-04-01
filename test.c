@@ -17,7 +17,7 @@ void testSymbol() {
     putChar(sym,'!');
 
     putChar(sym,'!');
-    while ((c = getChar(sym)) != '\0') {
+    while ((c = getReverseChar(sym)) != '\0') {
         printf("%c",c);
     }
     /*
@@ -28,12 +28,21 @@ void testSymbol() {
 
 void testCons() {
     // (a b c)
+    // (a (b c))
+    // ((a b) (c d))
     element *sym = input();
-    element *tb = parse(sym);
+    element *tb = parse(sym, NULL);
+    /*
     symbol *first = (symbol *)getContent(SYMBOL,car(tb));
-    printf("%s",first->seq);
-    table *rest = (table *)getContent(SYMBOL,cdr(tb));
-    printf("%d",rest->first->type);
+    printf("%s\n",first->seq);
+    element *rest = cdr(tb);
+    symbol *second = (symbol *)getContent(SYMBOL,car(rest));
+    printf("%s",second->seq);
+    rest = cdr(cdr(tb));
+    symbol *third = (symbol *)getContent(SYMBOL,car(rest));
+    printf("%s",third->seq);
+    */
+    printTable(tb);
     /*
     free(sym->seq);
     free(str);

@@ -24,8 +24,13 @@ void* getContent(enum TYPE t, element *e);
 element *cons(element *first, element *rest);
 element *car(element *tb);
 element *cdr(element *tb);
+void printTable(element *tb);
 
 element* newSymbol(char *seq,int len);
 char getChar(element *e); 
 char putChar(element *e, char c);
+char getCharAt(int pos, element *e); 
+char getReverseChar(element *e);
+int noChar(element *e);
+void reverseSym(element *e);
 #endif
