@@ -35,10 +35,22 @@ element *parse(element *str, element *rest) {
 
     element *res = newSymbol(malloc(1),0);
     int noSym = 1;
+    int isQuote = 0;
+    if (c == "'") {
+        isQuote = 1;
+        c = getReverseChar(str);
+    }
     while (c != '(' && c != ' ') {
         noSym = 0;
         putChar(res, c);
         c = getReverseChar(str);
+    }
+
+    // Add Quote Tag
+    if (isQuote) {
+        element *tag = newSymbol(malloc(1),0);
+        putString(tag,"quote");
+        res = cons(tag,res);
     }
 
     if (c == ' ') {

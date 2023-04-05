@@ -89,6 +89,12 @@ void printTable(element *e) {
         printf("%s ",str->seq);
     }
 }
+int is_pair(element *exp) {
+    if (car(exp) && (getContent(SYMBOL,cdr(exp)) || cdr(cdr(exp)) == NULL)) {
+        return 1;
+    }
+    return 0;
+}
 
 element* newSymbol(char *seq, int len) {
     symbol *sym = (symbol *)malloc(sizeof(symbol));
@@ -138,6 +144,12 @@ char putChar(element *e, char c) {
 
     return *((sym->seq)+(sym->index));
 }
+void putString(element *e,char *c) {
+    while (c != NULL && c != '\0') {
+        putChar(e,*c);
+        c++;
+    }
+}
 char getCharAt(int pos, element *e) {
     symbol *sym = getContent(SYMBOL, e);
     if (sym == NULL || pos > sym->length) {
@@ -162,5 +174,24 @@ void reverseSym(element *e) {
         char t = seq[i];
         seq[i] = seq[len-1-i];
         seq[len-1-i] = t;
+    }
+}
+
+int is_true(element *e) {
+    element *val = (element *)getContent(BOOLEAN,e);
+    if (val->content) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+int is_false(element *e) {
+    element *val = (element *)getContent(BOOLEAN,e);
+    if (!(val->content)) {
+        return 1;
+    }
+    else {
+        return 0;
     }
 }
