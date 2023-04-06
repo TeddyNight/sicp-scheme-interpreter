@@ -3,15 +3,17 @@
 enum TYPE {
     TABLE,
     SYMBOL,
-    BOOLEAN
+    BOOLEAN,
+    FUNCTION
 };
 typedef struct ELEMENT {
     enum TYPE type;
     void *content;
 } element;
+typedef element* obj;
 typedef struct TABLE {
-    element *first;
-    element *rest;
+    obj first;
+    obj rest;
 } table;
 typedef struct SYMBOL {
     char *seq;
@@ -19,29 +21,36 @@ typedef struct SYMBOL {
     int length;
     int size;
 } symbol;
-typedef struct ENVIRONMENT {
-} environment;
+/*
+typedef struct FUNCTION {
+    int argc;
+    union {
+*/      
 
-void* getContent(enum TYPE t, element *e); 
-void destroyElement(element *e);
-element *newElement(enum TYPE t, void *c); 
+void* getContent(enum TYPE t, obj e); 
+void destroyElement(obj e);
+obj newElement(enum TYPE t, void *c); 
 
-element *cons(element *first, element *rest);
-element *car(element *tb);
-element *cdr(element *tb);
-void printTable(element *tb);
-void destroyTable(element *tb);
-int is_pair(element *exp);
+obj cons(obj first, obj rest);
+obj car(obj tb);
+obj cdr(obj tb);
+obj set_car(obj tb, obj e);
+obj set_cdr(obj tb, obj e);
+void printTable(obj tb);
+void destroyTable(obj tb);
+int is_pair(obj exp);
+int length(obj exp);
 
-element* newSymbol(char *seq,int len);
-char getChar(element *e); 
-char putChar(element *e, char c);
-char getCharAt(int pos, element *e); 
-char getReverseChar(element *e);
-int noChar(element *e);
-void reverseSym(element *e);
-void destroySym(element *e);
+obj newSymbol(char *seq,int len);
+char getChar(obj e); 
+char putChar(obj e, char c);
+char getCharAt(int pos, obj e); 
+char getReverseChar(obj e);
+int noChar(obj e);
+void reverseSym(obj e);
+void destroySym(obj e);
 
-int is_true(element *e);
-int is_false(element *e);
+int is_true(obj e);
+int is_false(obj e);
+int eq(obj x, obj y);
 #endif

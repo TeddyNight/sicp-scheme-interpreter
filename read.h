@@ -2,6 +2,6 @@
 #define __READ_H__
 #include "type.h"
 #include "read.h"
-element* parse(element *str, element *rest);
-element* input();
+obj parse(element *str, element *rest);
+obj input();
 #endif

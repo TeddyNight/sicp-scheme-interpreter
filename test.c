@@ -7,7 +7,7 @@
 extern gc_element_list e_list;
 
 void testSymbol() {
-    element* sym = input();
+    obj sym = input();
     char c;
     putChar(sym,'!');
     putChar(sym,'!');
@@ -33,12 +33,12 @@ void testCons() {
     // (a b c)
     // (a (b c))
     // ((a b) (c d))
-    element *sym = input();
-    element *tb = parse(sym, NULL);
+    obj sym = input();
+    obj tb = parse(sym, NULL);
     /*
     symbol *first = (symbol *)getContent(SYMBOL,car(tb));
     printf("%s\n",first->seq);
-    element *rest = cdr(tb);
+    obj rest = cdr(tb);
     symbol *second = (symbol *)getContent(SYMBOL,car(rest));
     printf("%s",second->seq);
     rest = cdr(cdr(tb));

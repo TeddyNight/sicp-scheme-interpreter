@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-element *eval(element *exp, environment *env) {
-    element *res = NULL;
+obj eval(obj exp, obj env) {
+    obj res = NULL;
     if (is_self_evaluating(exp)) {
         res = exp;
     }
@@ -38,14 +38,14 @@ element *eval(element *exp, environment *env) {
     return res;
 }
 
-element *list_of_values(element *exps, environment *env) {
+obj list_of_values(obj exps, obj env) {
     if (getContent(TABLE,exps) == NULL) {
         return NULL;
     }
-    cons(eval(car(exps), env), list_of_values(cdr(exps), env));
+    return cons(eval(car(exps), env), list_of_values(cdr(exps), env));
 }
 
-element *eval_if(element *exp, environment *env) {
+obj eval_if(obj exp, obj env) {
     if (is_true(eval(car(exp),env))) {
         return eval(car(cdr(exp)), env);
     }
@@ -54,26 +54,27 @@ element *eval_if(element *exp, environment *env) {
     }
 }
 
-element *eval_sequence(element *exps,environment *env) {
+obj eval_sequence(obj exps,obj env) {
     if (cdr(exps) == NULL) {
         return eval(car(exps), env);
     }
     else {
+        //TODO eval sequence here should not reach to NULL and return
         eval(car(exps), env);
-        eval_sequence(cdr(exps), env);
+        return eval_sequence(cdr(exps), env);
     }
 }
 
-element *eval_assignment(element *exp, environment *env) {
+obj eval_assignment(obj exp, obj env) {
     set_variable_value(car(exp), eval(cdr(exp), env));
     return NULL;
 }
 
-element *eval_definition(element *exp, environment *env) {
+obj eval_definition(obj exp, obj env) {
     define_variable(car(exp), eval(cdr(exp), env));
 }
 
-int is_number(element *exp) {
+int is_number(obj exp) {
     symbol *sym = (symbol *)getContent(SYMBOL,exp);
     if (sym == NULL)
         return 0;
@@ -86,7 +87,7 @@ int is_number(element *exp) {
     return 1;
 }
 
-int is_tagged_list(element *exp, char *t) {
+int is_tagged_list(obj exp, char *t) {
     table *tb = (table *)getContent(TABLE,exp);
     if (tb == NULL)
         return 0;
@@ -98,27 +99,27 @@ int is_tagged_list(element *exp, char *t) {
     return 0;
 }
 
-int is_quoted(element *exp) {
+int is_quoted(obj exp) {
     return is_tagged_list(exp, "quote");
 }
 
-element *text_of_quotation(element *exp) {
+obj text_of_quotation(obj exp) {
     return car(cdr(exp));
 }
 
-int is_string(element *exp) {
+int is_string(obj exp) {
     return is_tagged_list(exp, "quote");
 }
 
-int is_assignment(element *exp) {
+int is_assignment(obj exp) {
     return is_tagged_list(exp,"set!");
 }
 
-int is_definition(element *exp) {
+int is_definition(obj exp) {
     return is_tagged_list(exp,"define");
 }
 
-int is_self_evaluating(element *exp) {
+int is_self_evaluating(obj exp) {
     if (is_number(exp))
         return 1;
     else if(is_string(exp))
@@ -127,7 +128,7 @@ int is_self_evaluating(element *exp) {
         return 0;
 }
 
-int is_symbol(element *exp) {
+int is_symbol(obj exp) {
     symbol *sym = (symbol *)getContent(SYMBOL,exp);
     if (sym == NULL)
         return 0;
@@ -147,11 +148,11 @@ int is_symbol(element *exp) {
     return 1;
 }
 
-int is_variable(element *exp) {
+int is_variable(obj exp) {
     return is_symbol(exp);
 }
 
-element *definition_variable(element *exp) {
+obj definition_variable(obj exp) {
     if (is_symbol(car(cdr(exp)))) {
         return car(cdr(exp));
     }
@@ -160,7 +161,7 @@ element *definition_variable(element *exp) {
     }
 }
 
-element *definition_value(element *exp) {
+obj definition_value(obj exp) {
     if (is_symbol(car(cdr(exp)))) {
         return car(cdr(cdr(exp)));
     }
@@ -169,41 +170,41 @@ element *definition_value(element *exp) {
     }
 }
 
-element *newTag(char *tag) {
+obj newTag(char *tag) {
     symbol *res = newSymbol(malloc(1),0);
     putString(res,tag);
     return res;
 }
 
-int is_lambda(element *exp) {
+int is_lambda(obj exp) {
     return is_tagged_list(exp,"lambda");
 }
 
-element *lambda_parameters(element *exp) {
+obj lambda_parameters(obj exp) {
     return car(cdr(exp));
 }
 
-element *lambda_body(element *exp) {
+obj lambda_body(obj exp) {
     return cdr(cdr(exp));
 }
 
-element *make_lambda(element *parameters, element *body) {
+obj make_lambda(obj parameters, obj body) {
     return cons(newTag("lambda"), cons(parameters,body));
 }
 
-int is_if(element *exp) {
+int is_if(obj exp) {
     return is_tagged_list(exp,"if");
 }
 
-int if_predicate(element *exp) {
+int if_predicate(obj exp) {
     return car(cdr(exp));
 }
 
-int if_consequent(element *exp) {
+int if_consequent(obj exp) {
     return car(cdr(cdr(exp)));
 }
 
-element *if_alternative(element *exp) {
+obj if_alternative(obj exp) {
     if (cdr(cdr(cdr(exp))) != NULL) {
         return car(cdr(cdr(cdr(exp))));
     }
@@ -212,35 +213,35 @@ element *if_alternative(element *exp) {
     }
 }
 
-element *make_if(element *predicate, element *consequent, element *alternative) {
+obj make_if(obj predicate, obj consequent, obj alternative) {
     return cons(newTag("if"), cons(predicate, cons(consequent, alternative)));
 }
 
-int is_begin(element *exp) {
+int is_begin(obj exp) {
     return is_tagged_list(exp,"begin");
 }
 
-element *begin_actions(element *exp) {
+obj begin_actions(obj exp) {
     return cdr(exp);
 }
 
-int is_last_exp(element *seq) {
+int is_last_exp(obj seq) {
     return (cdr(seq) == NULL);
 }
 
-element *first_exp(element *seq) {
+obj first_exp(obj seq) {
     return car(seq);
 }
 
-element *rest_exps(element *seq) {
+obj rest_exps(obj seq) {
     return cdr(seq);
 }
 
-element *make_begin(element *seq) {
+obj make_begin(obj seq) {
     return cons(newTag("begin"), seq);
 }
 
-element *sequence2exp(element *seq) {
+obj sequence2exp(obj seq) {
     if (seq == NULL) {
         return seq;
     }
@@ -252,27 +253,27 @@ element *sequence2exp(element *seq) {
     }
 }
 
-int is_application(element *exp) {
+int is_application(obj exp) {
     return is_pair(exp);
 }
 
-int is_cond(element *exp) {
+int is_cond(obj exp) {
     return is_tagged_list(exp,"cond");
 }
 
-element *cond_clauses(element *exp) {
+obj cond_clauses(obj exp) {
     return cdr(exp);
 }
 
-element *cond_predicate(element *clause) {
+obj cond_predicate(obj clause) {
     return car(clause);
 }
 
-element *cond_actions(element *clause) {
+obj cond_actions(obj clause) {
     return cdr(clause);
 }
 
-element *is_cond_else_clause(element *clause) {
+obj is_cond_else_clause(obj clause) {
     symbol *sym = (symbol *)getContent(SYMBOL, cond_predicate(clause));
     if (strcmp(sym->seq, "else")) {
         return 1;
@@ -282,12 +283,12 @@ element *is_cond_else_clause(element *clause) {
     }
 }
 
-element *expand_clauses(element *clauses) {
+obj expand_clauses(obj clauses) {
     if (clauses == NULL) {
         return newElement(BOOLEAN,0);
     }
-    element *first = car(clauses);
-    element *rest = cdr(clauses);
+    obj first = car(clauses);
+    obj rest = cdr(clauses);
     if (is_cond_else_clause(first)) {
         if (rest == NULL) {
             return sequence2exp(cond_actions(first));
@@ -303,6 +304,6 @@ element *expand_clauses(element *clauses) {
     }
 }
 
-element *cond2if(element *exp) {
+obj cond2if(obj exp) {
     return expand_clauses(cond_clauses(exp));
 }

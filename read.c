@@ -11,8 +11,8 @@ void parse(char *st, table *tb) {
 }
 */
 
-element *input() {
-    element *sym = newSymbol(malloc(1),0);
+obj input() {
+    obj sym = newSymbol(malloc(1),0);
     char c;
     while ((c = getchar()) != '\n') {
         putChar(sym,c);
@@ -20,7 +20,7 @@ element *input() {
     return sym;
 }
 
-element *parse(element *str, element *rest) {
+obj parse(obj str, obj rest) {
     // TODO: improve the way to parse the experssion
     char c;
     c = getReverseChar(str);
@@ -33,10 +33,10 @@ element *parse(element *str, element *rest) {
         return parse(str, rest);
     }
 
-    element *res = newSymbol(malloc(1),0);
+    obj res = newSymbol(malloc(1),0);
     int noSym = 1;
     int isQuote = 0;
-    if (c == "'") {
+    if (c == '\'') {
         isQuote = 1;
         c = getReverseChar(str);
     }
@@ -48,7 +48,7 @@ element *parse(element *str, element *rest) {
 
     // Add Quote Tag
     if (isQuote) {
-        element *tag = newSymbol(malloc(1),0);
+        obj tag = newSymbol(malloc(1),0);
         putString(tag,"quote");
         res = cons(tag,res);
     }
