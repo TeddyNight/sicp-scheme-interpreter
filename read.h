@@ -4,4 +4,5 @@
 #include "read.h"
 obj parse(element *str, element *rest);
 obj read();
+obj input();
 #endif

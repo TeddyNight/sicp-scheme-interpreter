@@ -13,6 +13,10 @@ void parse(char *st, table *tb) {
 */
 
 obj read() {
+    return parse(input(), NULL);
+}
+
+obj input() {
     char *seq = malloc(1);
     *seq = '\0';
     obj sym = newSymbol(seq);
@@ -41,14 +45,20 @@ obj parse(obj str, obj rest) {
     obj res = newSymbol(seq);
     int noSym = 1;
     int isQuote = 0;
-    if (c == '\'') {
-        isQuote = 1;
-        c = getReverseChar(str);
-    }
     while (c != '(' && c != ' ') {
+        isQuote = 0;
         noSym = 0;
+        if (c == '\'') {
+            isQuote = 1;
+            c = getReverseChar(str);
+            continue;
+        }
         putChar(res, c);
         c = getReverseChar(str);
+    }
+
+    if (!noSym) {
+        reverseSym(res);
     }
 
     // Add Quote Tag
@@ -65,10 +75,5 @@ obj parse(obj str, obj rest) {
     }
 
     // parse finsh
-    if (noSym)
-        return rest;
-    else {
-        reverseSym(res);
-        return cons(res, rest);
-    }
+    return cons(res, rest);
 }
