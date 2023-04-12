@@ -4,10 +4,11 @@
 #include "type.h"
 #include "string.h"
 #include "cleaner.h"
+#include "eval.h"
 extern gc_element_list e_list;
 
 void testSymbol() {
-    obj sym = input();
+    obj sym = read();
     char c;
     putChar(sym,'!');
     putChar(sym,'!');
@@ -33,7 +34,7 @@ void testCons() {
     // (a b c)
     // (a (b c))
     // ((a b) (c d))
-    obj sym = input();
+    obj sym = read();
     obj tb = parse(sym, NULL);
     /*
     symbol *first = (symbol *)getContent(SYMBOL,car(tb));
@@ -51,9 +52,16 @@ void testCons() {
     free(str);
     */
 }
+/*
+void testList() {
+    obj e = list(newTag("abc"), newTag("def"), newTag("ghi"));
+    printTable(e);
+}
+*/
 
 int main() {
     //testSymbol();
-    testCons();
+    //testCons();
+    testList();
     cleanAll(&e_list);
 }

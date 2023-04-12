@@ -1,5 +1,6 @@
 #include "read.h"
 #include "type.h"
+#include "eval.h"
 #include <stdio.h>
 #include <stdlib.h>
 /*
@@ -11,8 +12,10 @@ void parse(char *st, table *tb) {
 }
 */
 
-obj input() {
-    obj sym = newSymbol(malloc(1),0);
+obj read() {
+    char *seq = malloc(1);
+    *seq = '\0';
+    obj sym = newSymbol(seq);
     char c;
     while ((c = getchar()) != '\n') {
         putChar(sym,c);
@@ -33,7 +36,9 @@ obj parse(obj str, obj rest) {
         return parse(str, rest);
     }
 
-    obj res = newSymbol(malloc(1),0);
+    char *seq = malloc(1);
+    *seq = '\0';
+    obj res = newSymbol(seq);
     int noSym = 1;
     int isQuote = 0;
     if (c == '\'') {
@@ -48,9 +53,7 @@ obj parse(obj str, obj rest) {
 
     // Add Quote Tag
     if (isQuote) {
-        obj tag = newSymbol(malloc(1),0);
-        putString(tag,"quote");
-        res = cons(tag,res);
+        res = cons(newTag("quote"), cons(res, NULL));
     }
 
     if (c == ' ') {

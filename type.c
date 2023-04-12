@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 gc_element_list e_list; 
 void* getContent(enum TYPE t, obj e) {
+    if (e == NULL) return NULL;
     if (e->type == t) return e->content;
     else return NULL;
 }
@@ -46,8 +48,8 @@ void destroyTable(obj e) {
 
 obj cons(obj first, obj rest) {
     table* tb = (table *)malloc(sizeof(table));
-    tb->first = first;
-    tb->rest = rest;
+    tb->first = (void *)first;
+    tb->rest = (void *)rest;
     return newElement(TABLE, tb);
 }
 obj car(obj e) {
@@ -60,6 +62,26 @@ obj cdr(obj e) {
     if (tb == NULL) return NULL;
     return tb->rest;
 }
+obj cadr(obj tb) {
+    return car(cdr(tb));
+}
+/*
+obj list(obj arg1, ...) {
+    va_list ap;
+    obj t;
+
+    va_start(ap, arg1);
+    obj res = cons(arg1, NULL);
+    obj e = res;
+    while ((t = va_arg(ap, obj)) != NULL) {
+        set_cdr(e, cons(t, NULL));
+        e = cdr(e);
+    }
+    va_end(ap);
+    return res;
+}
+*/
+    
 void printTable(obj e) {
     if (e->type != TABLE) {
         return;
@@ -122,7 +144,8 @@ obj set_cdr(obj tb, obj e) {
     return tb;
 }
 
-obj newSymbol(char *seq, int len) {
+obj newSymbol(char *seq) {
+    int len = strlen(seq);
     symbol *sym = (symbol *)malloc(sizeof(symbol));
     sym->seq = seq;
     sym->index = 0;
@@ -153,7 +176,7 @@ char getReverseChar(obj e) {
     return res;
 }
 char putChar(obj e, char c) {
-    symbol *sym = getContent(SYMBOL, e);
+    symbol *sym = (symbol *)getContent(SYMBOL, e);
     if (sym == NULL) {
         return '\0';
     }
@@ -255,6 +278,9 @@ int eq(obj x, obj y) {
     if (x == NULL && y == NULL) {
         return 1;
     }
+    else if (x->type != y->type) {
+        return 0;
+    }
     else if (eq_symbol(x, y)) {
         return 1;
     }
@@ -265,3 +291,85 @@ int eq(obj x, obj y) {
         return 0;
     }
 }
+
+void printSymbol(obj o) {
+    symbol *sym = (symbol *)getContent(SYMBOL, o);
+    if (sym == NULL) {
+        return;
+    }
+    printf("%s",sym->seq);
+}
+void user_print(obj o) {
+    table *tb = (table *)getContent(TABLE, o);
+    if (tb != NULL) {
+        if (is_tagged_list(o, "quote")) {
+            printSymbol(car(cdr(o)));
+        }
+        else {
+            printTable(o);
+        }
+        return;
+    }
+    printSymbol(o);
+    obj boolean = (obj)getContent(BOOLEAN, o);
+    if (boolean != NULL) {
+        if (boolean->content) {
+            printf("True");
+        }
+        else {
+            printf("False");
+        }
+    }
+}
+
+obj newTag(char *tag) {
+    char *seq = malloc(1);
+    *seq = '\0';
+    obj res = newSymbol(seq);
+    putString(res,tag);
+    return res;
+}
+
+// Function pointers aren't necessarily the same size as regular pointers
+// avoid this undefined behavior
+// maybe the pointer should be put in (list 'primitive <pointer>) ?
+obj newFunction(int argc, obj (*func)()) {
+    function *func_o = malloc(sizeof(function));
+    func_o->argc = argc;
+    func_o->func = func;
+    return newElement(FUNCTION, func_o);
+}
+
+obj exec_func(obj proc, int argc, obj *arg) {
+    obj (*func)() = ((function *)(getContent(FUNCTION, proc)))->func;
+    switch (argc) {
+        case 0:
+            return func();
+        case 1:
+            return ((obj (*)(obj))func)(arg[0]);
+        case 2:
+            return ((obj (*)(obj, obj))func)(arg[0], arg[1]);
+        case 3:
+            return ((obj (*)(obj, obj, obj))func)(arg[0], arg[1], arg[2]);
+        case 4:
+            return ((obj (*)(obj, obj, obj ,obj))func)(arg[0], arg[1], arg[2], arg[3]);
+        case 5:
+            return ((obj (*)(obj, obj, obj ,obj, obj))func)(arg[0], arg[1], arg[2], arg[3], arg[4]);
+        case 6:
+            return ((obj (*)(obj, obj, obj ,obj, obj, obj))func)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]);
+        default:
+            printf("Error: too much parameters for the function");
+    }
+    return NULL;
+}    
+
+obj map(obj proc, obj list) {
+    function *func = getContent(FUNCTION, proc);
+    if (func == NULL || func->argc != 1)
+        return NULL;
+    obj cur = car(list);
+    obj rest = cdr(list);
+    if (cur == NULL)
+        return NULL;
+    return cons(exec_func(proc, 1, &cur), map(proc, rest));
+} 

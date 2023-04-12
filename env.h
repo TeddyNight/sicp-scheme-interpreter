@@ -17,4 +17,8 @@ obj make_frame(obj vars, obj vals);
 obj frame_variables(obj frame);
 obj frame_values(obj frame);
 obj add_binding_to_frame(obj var, obj val, obj frame);
+
+obj primitive_procedure_names();
+obj primitive_procedure_objects();
+obj setup_environment();
 #endif

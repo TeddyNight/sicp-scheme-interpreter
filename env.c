@@ -1,7 +1,17 @@
-#include "env.h"
 #include "type.h"
+#include "env.h"
 #include <stdio.h>
+#include <stdlib.h>
 
+extern obj primitive_procedures;
+static const element true_val = {
+    .type = BOOLEAN,
+    .content = 1
+};
+static const element false_val = {
+    .type = BOOLEAN,
+    .content = 0
+};
 obj lookup_variable_scan(obj var, obj vars, obj vals) {
     if (vars == NULL) {
         return NULL;
@@ -116,4 +126,41 @@ obj frame_values(obj frame) {
 obj add_binding_to_frame(obj var, obj val, obj frame) {
     set_car(frame, cons(var, car(frame)));
     return set_cdr(frame, cons(val, cdr(frame)));
+}
+
+void setup_procs() {
+    primitive_procedures = 
+        cons(
+            cons(newSymbol("cons"), cons(newFunction(2, cons), NULL)),
+        cons(
+            cons(newSymbol("car"), cons(newFunction(1, car), NULL)),
+        cons(
+            cons(newSymbol("cdr"), cons(newFunction(1, cdr), NULL)),
+        NULL)));
+}
+
+obj primitive_procedure_names() {
+    return map(newFunction(1, car), primitive_procedures);
+}
+
+obj primitive_procedure_objects() {
+    return map(newFunction(1, cadr), primitive_procedures);
+}
+
+obj setup_environment() {
+    setup_procs();
+
+    obj initial_env = extend_environment(primitive_procedure_names(), primitive_procedure_objects(), the_empty_environment());
+    // TODO tag name should be static & constant
+    static const element true_val = {
+        .type = BOOLEAN,
+        .content = 1
+    };
+    static const element false_val = {
+        .type = BOOLEAN,
+        .content = 0
+    };
+    define_variable(newTag("true"), &true_val, initial_env);
+    define_variable(newTag("false"), &false_val, initial_env);
+    return initial_env;
 }

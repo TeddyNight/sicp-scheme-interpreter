@@ -170,12 +170,6 @@ obj definition_value(obj exp) {
     }
 }
 
-obj newTag(char *tag) {
-    symbol *res = newSymbol(malloc(1),0);
-    putString(res,tag);
-    return res;
-}
-
 int is_lambda(obj exp) {
     return is_tagged_list(exp,"lambda");
 }
@@ -189,7 +183,7 @@ obj lambda_body(obj exp) {
 }
 
 obj make_lambda(obj parameters, obj body) {
-    return cons(newTag("lambda"), cons(parameters,body));
+    return cons(newTag("lambda"), cons(parameters, cons(body, NULL)));
 }
 
 int is_if(obj exp) {
@@ -214,7 +208,7 @@ obj if_alternative(obj exp) {
 }
 
 obj make_if(obj predicate, obj consequent, obj alternative) {
-    return cons(newTag("if"), cons(predicate, cons(consequent, alternative)));
+    return cons(newTag("if"), cons(predicate, cons(consequent, cons(alternative, NULL))));
 }
 
 int is_begin(obj exp) {
@@ -238,7 +232,7 @@ obj rest_exps(obj seq) {
 }
 
 obj make_begin(obj seq) {
-    return cons(newTag("begin"), seq);
+    return cons(newTag("begin"), cons(seq, NULL));
 }
 
 obj sequence2exp(obj seq) {

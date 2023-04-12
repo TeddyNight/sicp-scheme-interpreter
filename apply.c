@@ -26,34 +26,14 @@ int is_compound_procedure(obj proc) {
 obj apply_primitive_procedure(obj proc, obj args) {
     // number of functions
     // stick to the limit of the register, only accept no more than 6 parameters?
-    obj func = (obj)getContent(FUNC, proc);
     int argc = 0;
-    table *tb = (table *)getContent(TABLE, args);
-    table *arg[6];
-    while (tb != NULL) {
-        arg[argc] = args;
+    obj arg[6];
+    while (args != NULL) {
+        arg[argc] = car(args);
         argc++;
         args = cdr(args);
-        tb = (table *)getContent(TABLE, args);
     }
-    switch (argc) {
-        case 0:
-            return exec_zero(func);
-        case 1:
-            return exec_one(func, arg[0]);
-        case 2:
-            return exec_two(func, arg[0], arg[1]);
-        case 3:
-            return exec_three(func, arg[0], arg[1], arg[2]);
-        case 4:
-            return exec_three(func, arg[0], arg[1], arg[2], arg[3]);
-        case 5:
-            return exec_three(func, arg[0], arg[1], arg[2], arg[3], arg[4]);
-        case 6:
-            return exec_three(func, arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]);
-        default:
-            printf("Error: too much parameters for the function");
-    }
+    return exec_func(proc, argc, arg);
 }
     // apply(func, args[0], args[1], args[2])
 obj eval_sequence(obj body, obj proc);
