@@ -35,8 +35,9 @@ obj parse(obj str, obj rest) {
         return rest;
     }
 
-    // main-clause or sub-clause
-    if (c == ')') {
+    // ) is for the end of main-clause or sub-clause
+    // ' ' is for the start of sub-clause
+    if (c == ')' || c == ' ') {
         return parse(str, rest);
     }
 
