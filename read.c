@@ -63,6 +63,7 @@ obj parse(obj str, obj rest) {
 
     // Add Quote Tag
     if (isQuote) {
+        res->type = STRING;
         res = cons(newTag("quote"), cons(res, NULL));
     }
 

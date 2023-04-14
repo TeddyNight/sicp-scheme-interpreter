@@ -1,6 +1,7 @@
 #include "apply.h"
 #include "eval.h"
 #include "type.h"
+#include "env.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,7 +34,7 @@ obj apply_primitive_procedure(obj proc, obj args) {
         argc++;
         args = cdr(args);
     }
-    return exec_func(proc, argc, arg);
+    return exec_func(primitive_procedure_implementation(proc), argc, arg);
 }
     // apply(func, args[0], args[1], args[2])
 obj eval_sequence(obj body, obj proc);
@@ -47,7 +48,7 @@ obj procedure_environment(obj proc) {
     return car(cdr(cdr(cdr(proc))));
 }
 
-obj primitive_implementation(obj proc) {
+obj primitive_procedure_implementation(obj proc) {
     return car(cdr(proc));
 }
 

@@ -6,9 +6,9 @@
 #include "cleaner.h"
 #include "eval.h"
 extern gc_element_list e_list;
-
+obj primitive_procedures;
 void testSymbol() {
-    obj sym = read();
+    obj sym = input();
     char c;
     putChar(sym,'!');
     putChar(sym,'!');
@@ -34,8 +34,7 @@ void testCons() {
     // (a b c)
     // (a (b c))
     // ((a b) (c d))
-    obj sym = read();
-    obj tb = parse(sym, NULL);
+    obj tb = read();
     /*
     symbol *first = (symbol *)getContent(SYMBOL,car(tb));
     printf("%s\n",first->seq);
@@ -61,7 +60,7 @@ void testList() {
 
 int main() {
     //testSymbol();
-    //testCons();
-    testList();
+    testCons();
+    //testList();
     cleanAll(&e_list);
 }

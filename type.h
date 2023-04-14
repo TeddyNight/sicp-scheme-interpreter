@@ -4,6 +4,7 @@ enum TYPE {
     TABLE,
     SYMBOL,
     BOOLEAN,
+    STRING,
     FUNCTION
 };
 typedef struct ELEMENT {
@@ -20,7 +21,7 @@ typedef struct SYMBOL {
     int index;
     int length;
     int size;
-} symbol;
+} symbol, string;
 // TODO may be all parameters should be put in stack first, 
 // then taken out using helper function
 typedef struct FUNCTION {
@@ -64,4 +65,6 @@ int is_true(obj e);
 int is_false(obj e);
 int eq(obj x, obj y);
 obj map(obj proc, obj list);
+obj user_print(obj o);
+obj display(obj o);
 #endif

@@ -125,7 +125,8 @@ obj frame_values(obj frame) {
 }
 obj add_binding_to_frame(obj var, obj val, obj frame) {
     set_car(frame, cons(var, car(frame)));
-    return set_cdr(frame, cons(val, cdr(frame)));
+    set_cdr(frame, cons(val, cdr(frame)));
+    return val;
 }
 
 void setup_procs() {
@@ -136,15 +137,21 @@ void setup_procs() {
             cons(newSymbol("car"), cons(newFunction(1, car), NULL)),
         cons(
             cons(newSymbol("cdr"), cons(newFunction(1, cdr), NULL)),
-        NULL)));
+        cons(
+            cons(newSymbol("display"), cons(newFunction(1, display), NULL)),
+        NULL))));
 }
 
 obj primitive_procedure_names() {
     return map(newFunction(1, car), primitive_procedures);
 }
 
+obj primitive_procedure_helper(obj o) {
+    return cons(newTag("primitive"), cons(car(cdr(o)), NULL));
+}
+
 obj primitive_procedure_objects() {
-    return map(newFunction(1, cadr), primitive_procedures);
+    return map(newFunction(1, primitive_procedure_helper), primitive_procedures);
 }
 
 obj setup_environment() {

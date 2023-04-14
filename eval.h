@@ -7,6 +7,8 @@ obj eval_if(obj exp, obj env);
 obj eval_sequence(obj exps, obj env);
 obj eval_assignment(obj exp, obj env);
 obj eval_definition(obj exp, obj env);
+obj definition_variable(obj exp);
+obj definition_value(obj exp);
 obj text_of_quotation(obj exp);
 int is_number(obj exp);
 int is_string(obj exp);

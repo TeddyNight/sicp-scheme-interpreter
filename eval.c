@@ -1,5 +1,7 @@
 #include "eval.h"
+#include "apply.h"
 #include "type.h"
+#include "env.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +35,9 @@ obj eval(obj exp, obj env) {
         res = eval(cond2if(exp), env);
     }
     else if (is_application(exp)) {
-        res = apply(eval(car(exp), env), list_of_values(cdr(exp), env));
+        obj proc = eval(car(exp), env);
+        obj para = list_of_values(cdr(exp), env);
+        res = apply(proc, para);
     }
     return res;
 }
@@ -66,12 +70,14 @@ obj eval_sequence(obj exps,obj env) {
 }
 
 obj eval_assignment(obj exp, obj env) {
-    set_variable_value(car(exp), eval(cdr(exp), env));
+    set_variable_value(car(exp), eval(cdr(exp), env), env);
     return NULL;
 }
 
 obj eval_definition(obj exp, obj env) {
-    define_variable(car(exp), eval(cdr(exp), env));
+    obj var = definition_variable(exp);
+    obj val = definition_value(exp);
+    define_variable(var, eval(val, env), env);
 }
 
 int is_number(obj exp) {
@@ -108,7 +114,7 @@ obj text_of_quotation(obj exp) {
 }
 
 int is_string(obj exp) {
-    return is_tagged_list(exp, "quote");
+    return (getContent(STRING, exp) != NULL);
 }
 
 int is_assignment(obj exp) {
@@ -134,15 +140,15 @@ int is_symbol(obj exp) {
         return 0;
 
     // Keywords..
-    if (strcmp(sym->seq,"if"))
+    if (strcmp(sym->seq,"if") == 0)
         return 0;
-    if (strcmp(sym->seq,"cond"))
+    if (strcmp(sym->seq,"cond") == 0)
         return 0;
-    if (strcmp(sym->seq,"set!"))
+    if (strcmp(sym->seq,"set!") == 0)
         return 0;
-    if (strcmp(sym->seq,"define"))
+    if (strcmp(sym->seq,"define") == 0)
         return 0;
-    if (strcmp(sym->seq,"begin"))
+    if (strcmp(sym->seq,"begin") == 0)
         return 0;
 
     return 1;
@@ -190,11 +196,11 @@ int is_if(obj exp) {
     return is_tagged_list(exp,"if");
 }
 
-int if_predicate(obj exp) {
+obj if_predicate(obj exp) {
     return car(cdr(exp));
 }
 
-int if_consequent(obj exp) {
+obj if_consequent(obj exp) {
     return car(cdr(cdr(exp)));
 }
 

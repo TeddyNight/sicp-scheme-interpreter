@@ -13,7 +13,7 @@ obj procedure_body(obj proc);
 obj procedure_parameters(obj proc);
 obj procedure_environment(obj proc);
 
-obj primitive_implementation(obj proc);
+obj primitive_procedure_implementation(obj proc);
 
 obj make_procedure(obj proc, obj body, obj env);
 #endif

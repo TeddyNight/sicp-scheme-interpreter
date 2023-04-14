@@ -96,11 +96,14 @@ void printTable(obj e) {
         printTable(first);
     }
     else if (first->type == SYMBOL) {
-        symbol *str = (symbol *)getContent(SYMBOL,first);
-        printf("%s ",str->seq);
+        printSymbol(first);
+    }
+    else if (first->type == STRING) {
+        printString(first);
     }
 
     if (rest == NULL) {
+        printf("\n");
         return;
     }
     if (rest->type == TABLE) {
@@ -109,10 +112,11 @@ void printTable(obj e) {
     else if (rest->type == SYMBOL) {
         symbol *str = (symbol *)getContent(SYMBOL,rest);
         printf("%s ",str->seq);
+        fflush(stdout);
     }
 }
 int is_pair(obj exp) {
-    if (car(exp) && (getContent(SYMBOL,cdr(exp)) || cdr(cdr(exp)) == NULL)) {
+    if (car(exp) && cdr(exp) != NULL) {
         return 1;
     }
     return 0;
@@ -297,9 +301,18 @@ void printSymbol(obj o) {
     if (sym == NULL) {
         return;
     }
-    printf("%s",sym->seq);
+    printf("%s\n",sym->seq);
 }
-void user_print(obj o) {
+void printString(obj o) {
+    string *str = (string *)getContent(STRING, o);
+    if (str == NULL) {
+        return;
+    }
+    printf("%s\n",str->seq);
+}
+obj user_print(obj o) {
+    if (o == NULL)
+        return;
     table *tb = (table *)getContent(TABLE, o);
     if (tb != NULL) {
         if (is_tagged_list(o, "quote")) {
@@ -310,14 +323,19 @@ void user_print(obj o) {
         }
         return;
     }
-    printSymbol(o);
+    if (is_symbol(o)) {
+        printSymbol(o);
+    }
+    if (is_string(o)) {
+        printString(o);
+    }
     obj boolean = (obj)getContent(BOOLEAN, o);
     if (boolean != NULL) {
         if (boolean->content) {
-            printf("True");
+            printf("True\n");
         }
         else {
-            printf("False");
+            printf("False\n");
         }
     }
 }
@@ -373,3 +391,7 @@ obj map(obj proc, obj list) {
         return NULL;
     return cons(exec_func(proc, 1, &cur), map(proc, rest));
 } 
+
+obj display(obj o) {
+    return o;
+}

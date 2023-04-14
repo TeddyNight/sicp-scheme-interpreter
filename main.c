@@ -5,6 +5,7 @@
 #include "eval.h"
 #include "apply.h"
 #include "read.h"
+#include "env.h"
 
 #define INPUT_PROMPT ";;;M-Eval input:\n"
 #define OUTPUT_PROMPT ";;;M-Eval value:\n"
