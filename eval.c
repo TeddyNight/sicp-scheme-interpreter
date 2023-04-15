@@ -26,7 +26,9 @@ obj eval(obj exp, obj env) {
         res = eval_if(exp, env);
     }
     else if (is_lambda(exp)) {
-        res = make_procedure(lambda_parameters(exp), lambda_body(exp), env);
+        obj para = lambda_parameters(exp);
+        obj body = lambda_body(exp);
+        res = make_procedure(para, body, env);
     }
     else if (is_begin(exp)) {
         res = eval_sequence(begin_actions(exp), env);
@@ -37,6 +39,8 @@ obj eval(obj exp, obj env) {
     else if (is_application(exp)) {
         obj proc = eval(car(exp), env);
         obj para = list_of_values(cdr(exp), env);
+        printf("send to apply: ");
+        user_print(para);
         res = apply(proc, para);
     }
     return res;
@@ -46,7 +50,9 @@ obj list_of_values(obj exps, obj env) {
     if (getContent(TABLE,exps) == NULL) {
         return NULL;
     }
-    return cons(eval(car(exps), env), list_of_values(cdr(exps), env));
+    obj cur = eval(car(exps), env);
+    obj next = list_of_values(cdr(exps), env);
+    return cons(cur, next);
 }
 
 obj eval_if(obj exp, obj env) {
@@ -59,7 +65,7 @@ obj eval_if(obj exp, obj env) {
 }
 
 obj eval_sequence(obj exps,obj env) {
-    if (cdr(exps) == NULL) {
+    if (is_last_exp(exps)) {
         return eval(car(exps), env);
     }
     else {
@@ -81,16 +87,21 @@ obj eval_definition(obj exp, obj env) {
 }
 
 int is_number(obj exp) {
+    // TODO number must be implemented in another way
+    // buggy here
+    /*
     symbol *sym = (symbol *)getContent(SYMBOL,exp);
     if (sym == NULL)
         return 0;
     char c;
     while ((c = getChar(exp)) != '\0') {
         if (c < '0' || c > '9')
-            return 0;
+            return 1;
     }
     sym->index = 0;
-    return 1;
+    return 0;
+    */
+    return 0;
 }
 
 int is_tagged_list(obj exp, char *t) {
@@ -114,7 +125,10 @@ obj text_of_quotation(obj exp) {
 }
 
 int is_string(obj exp) {
-    return (getContent(STRING, exp) != NULL);
+    if(getContent(STRING, exp) == NULL)
+        return 0;
+    else
+        return 1;
 }
 
 int is_assignment(obj exp) {
@@ -189,7 +203,7 @@ obj lambda_body(obj exp) {
 }
 
 obj make_lambda(obj parameters, obj body) {
-    return cons(newTag("lambda"), cons(parameters, cons(body, NULL)));
+    return cons(newTag("lambda"), cons(parameters, body));
 }
 
 int is_if(obj exp) {
@@ -273,7 +287,7 @@ obj cond_actions(obj clause) {
     return cdr(clause);
 }
 
-obj is_cond_else_clause(obj clause) {
+int is_cond_else_clause(obj clause) {
     symbol *sym = (symbol *)getContent(SYMBOL, cond_predicate(clause));
     if (strcmp(sym->seq, "else")) {
         return 1;

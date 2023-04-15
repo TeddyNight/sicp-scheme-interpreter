@@ -1,5 +1,6 @@
 #include "type.h"
 #include "cleaner.h"
+#include "apply.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -92,28 +93,14 @@ void printTable(obj e) {
     if (first == NULL) {
         return;
     }
-    else if (first->type == TABLE) {
-        printTable(first);
-    }
-    else if (first->type == SYMBOL) {
-        printSymbol(first);
-    }
-    else if (first->type == STRING) {
-        printString(first);
+    else {
+        user_print(first);
     }
 
     if (rest == NULL) {
-        printf("\n");
         return;
     }
-    if (rest->type == TABLE) {
-        printTable(rest);
-    }
-    else if (rest->type == SYMBOL) {
-        symbol *str = (symbol *)getContent(SYMBOL,rest);
-        printf("%s ",str->seq);
-        fflush(stdout);
-    }
+    user_print(rest);
 }
 int is_pair(obj exp) {
     if (car(exp) && cdr(exp) != NULL) {
@@ -312,16 +299,23 @@ void printString(obj o) {
 }
 obj user_print(obj o) {
     if (o == NULL)
-        return;
+        return NULL;
     table *tb = (table *)getContent(TABLE, o);
     if (tb != NULL) {
         if (is_tagged_list(o, "quote")) {
             printSymbol(car(cdr(o)));
         }
+        else if (is_compound_procedure(o)) {
+            printf("!!compound-procedure\nprocedure_parameters:\n");
+            user_print(procedure_parameters(o));
+            printf("procedure_body:\n");
+            user_print(procedure_body(o));
+            printf("<procedure-env>\n");
+        }
         else {
             printTable(o);
         }
-        return;
+        return NULL;
     }
     if (is_symbol(o)) {
         printSymbol(o);
@@ -329,9 +323,9 @@ obj user_print(obj o) {
     if (is_string(o)) {
         printString(o);
     }
-    obj boolean = (obj)getContent(BOOLEAN, o);
+    void *boolean = getContent(BOOLEAN, o);
     if (boolean != NULL) {
-        if (boolean->content) {
+        if (o->content) {
             printf("True\n");
         }
         else {

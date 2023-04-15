@@ -8,7 +8,6 @@ int is_primitive_procedure(obj proc);
 int is_compound_procedure(obj proc);
 
 obj apply_primitive_procedure(obj proc, obj args);
-obj eval_sequence(obj body, obj proc);
 obj procedure_body(obj proc);
 obj procedure_parameters(obj proc);
 obj procedure_environment(obj proc);

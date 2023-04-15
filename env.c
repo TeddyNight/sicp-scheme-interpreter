@@ -17,6 +17,8 @@ obj lookup_variable_scan(obj var, obj vars, obj vals) {
         return NULL;
     }
     else if (eq(var, car(vars))) {
+        printf("lookup_result:");
+        user_print(car(vals));
         return car(vals);
     }
     else {
@@ -26,8 +28,11 @@ obj lookup_variable_scan(obj var, obj vars, obj vals) {
 obj lookup_variable_value(obj var, obj env) {
     if (is_empty_environment(env)) {
         //TODO Error: Unbound variable
+        printf("Unbound variable\n");
         return NULL;
     }
+    printf("lookup_variable:");
+    user_print(var);
     obj frame = first_frame(env);
     obj res = lookup_variable_scan(var, frame_variables(frame), frame_values(frame));
     if (res == NULL) {
@@ -36,15 +41,21 @@ obj lookup_variable_value(obj var, obj env) {
     return res;
 }
 obj extend_environment(obj vars, obj vals, obj base_env) {
+    printf("extend_environment():\nvars:\n");
+    user_print(vars);
+    printf("vals:\n");
+    user_print(vals);
     if (length(vars) == length(vals)) {
         return cons(make_frame(vars,vals), base_env);
     }
     else if (length(vars) < length(vals)) {
         // TODO Error: Too many arguments supplied
+        printf("Too many arguments supplied");
         return NULL;
     }
     else {
         // TODO Error: Too few arguments supplied 
+        printf("Too few arguments supplied");
         return NULL;
     }
 }
