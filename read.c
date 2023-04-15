@@ -37,8 +37,15 @@ obj parse(obj str, obj rest) {
 
     // ) is for the end of main-clause or sub-clause
     // ' ' is for the start of sub-clause
-    if (c == ')' || c == ' ') {
-        return parse(str, rest);
+    if (c == ')') {
+        obj first = parse(str, NULL);
+        if (rest == NULL)
+            return parse(str, first);
+        else
+            return parse(str, cons(first, rest));
+    }
+    if (c == ' ') {
+        return rest;
     }
 
     char *seq = malloc(1);
@@ -73,7 +80,8 @@ obj parse(obj str, obj rest) {
     }
 
     if (c == '(' && !noChar(str)) {
-        return parse(str, cons(cons(res, rest), NULL));
+        //return parse(str, cons(cons(res, rest), NULL));
+        return parse(str, cons(res, rest));
     }
 
     // parse finsh
