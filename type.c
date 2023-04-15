@@ -172,9 +172,10 @@ char putChar(obj e, char c) {
         return '\0';
     }
     if ((sym->length)+1 >= sym->size) {
-        char *temp = (char *)malloc((int)(1.75*(sym->size)));
+        size_t newSize = 1.75*((sym->size)+0.5);
+        char *temp = (char *)malloc(newSize);
         strncpy(temp,sym->seq,sym->length);
-        sym->size = (int)(1.75*(sym->size));
+        sym->size = newSize;
         free(sym->seq);
         sym->seq = temp;
     }
